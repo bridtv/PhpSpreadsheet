@@ -177,8 +177,11 @@ class Xlsx extends BaseWriter
             $this->spreadSheet->garbageCollect();
 
             // If $pFilename is php://output or php://stdout, make it a temporary file...
+			// Enable writing to AWS s3 bucket, regex is matching s3 protocol, eg. 's3://bucket/path/key', 's3://bucket/path/directory/'
+			$regex = '~^s3://([^/]+)/(.*?([^/]+)/?)$~m';
+			$isS3Protocol = preg_match($regex, $pFilename);
             $originalFilename = $pFilename;
-            if (strtolower($pFilename) == 'php://output' || strtolower($pFilename) == 'php://stdout') {
+            if (strtolower($pFilename) == 'php://output' || strtolower($pFilename) == 'php://stdout' || $isS3Protocol) {
                 $pFilename = @tempnam(File::sysGetTempDir(), 'phpxltmp');
                 if ($pFilename == '') {
                     $pFilename = $originalFilename;
